@@ -1,0 +1,48 @@
+version: '3.8'
+
+services:
+  db:
+    image: mysql:5.7
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: berrim
+      MYSQL_DATABASE: berrim
+      MYSQL_USER: berrim
+      MYSQL_PASSWORD: berrim
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - wordpress_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "berrim", "--password=berrim"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wordpress:
+    build: .
+    restart: always
+    ports:
+      - "8000:80"
+    environment:
+      WORDPRESS_DB_HOST: db
+      WORDPRESS_DB_USER: berrim
+      WORDPRESS_DB_PASSWORD: berrim
+      WORDPRESS_DB_NAME: berrim
+      WORDPRESS_DEBUG: 1
+    volumes:
+      - wordpress_data:/var/www/html
+      - ./wp-content/plugins:/var/www/html/wp-content/plugins:rw
+    networks:
+      - wordpress_network
+    depends_on:
+      db:
+        condition: service_healthy
+
+networks:
+  wordpress_network:
+    driver: bridge
+
+volumes:
+  wordpress_data:
+  db_data:
