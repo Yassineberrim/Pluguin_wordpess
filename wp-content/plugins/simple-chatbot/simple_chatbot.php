@@ -43,30 +43,87 @@ function chatbot_add_to_footer() {
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Chatbot</title>
-        <link rel="stylesheet" href="<?php echo plugins_url('css/chatbot.css', __FILE__); ?>">
+        <title>Chat Interface</title>
+        <link rel="stylesheet" href="/css/chatbot.css">
     </head>
     <body>
-        <button id="chatToggleButton" class="floating-button" onclick="toggleChat()">💬 Chat</button>
-        <div class="chat-container" id="chatContainer">
-            <header class="chat-header">
-                <h2>Bot Assistant</h2>
-                <button class="minimize-btn" onclick="toggleChat()">_</button>
-            </header>
-            <div class="chat-box" id="chatBox">
-                <div class="chat-message bot-message">Bonjour ! Comment puis-je vous aider aujourd'hui ?</div>
-            </div>
-            <div class="chat-input">
-                <input type="text" id="userInput" placeholder="Écrivez un message..." onkeypress="handleKeyPress(event)">
-                <button onclick="sendMessage()">Envoyer</button>
+        <button class="floating-button">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+        </button>
+
+        <div class="chat-container">
+            <div class="chat-header">Service Client</div>
+            <div class="chat-box"></div>
+            <div class="chat-input-container">
+                <input type="text" class="chat-input" placeholder="Écrivez votre message...">
+                <button class="send-button">Envoyer</button>
             </div>
         </div>
 
-        <script src="<?php echo plugins_url('js/chatbot.js', __FILE__); ?>"></script>
+        <script>
+            document.addEventListener('DOMContentLoaded', function() {
+                const floatingButton = document.querySelector('.floating-button');
+                const chatContainer = document.querySelector('.chat-container');
+                const chatBox = document.querySelector('.chat-box');
+                const chatInput = document.querySelector('.chat-input');
+                const sendButton = document.querySelector('.send-button');
+
+                // Toggle chat window
+                floatingButton.addEventListener('click', function() {
+                    this.classList.toggle('active');
+                    chatContainer.classList.toggle('active');
+                    if (chatContainer.classList.contains('active')) {
+                        chatInput.focus();
+                    }
+                });
+
+                // Send message function
+                function sendMessage() {
+                    const message = chatInput.value.trim();
+                    if (message) {
+                        // Add user message
+                        addMessage(message, 'user');
+                        chatInput.value = '';
+                        
+                        // Simulate bot response
+                        setTimeout(() => {
+                            addMessage('Merci pour votre message. Un conseiller vous répondra bientôt.', 'bot');
+                        }, 1000);
+                    }
+                }
+
+                // Add message to chat
+                function addMessage(text, sender) {
+                    const messageDiv = document.createElement('div');
+                    messageDiv.classList.add('chat-message', `${sender}-message`);
+                    messageDiv.textContent = text;
+                    chatBox.appendChild(messageDiv);
+                    chatBox.scrollTop = chatBox.scrollHeight;
+                }
+
+                // Send button click
+                sendButton.addEventListener('click', sendMessage);
+
+                // Enter key press
+                chatInput.addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') {
+                        sendMessage();
+                    }
+                });
+
+                // Add initial bot message
+                setTimeout(() => {
+                    addMessage('Bonjour! Comment puis-je vous aider?', 'bot');
+                }, 500);
+            });
+        </script>
     </body>
     </html>
     <?php
 }
+
 add_action('wp_footer', 'chatbot_add_to_footer');
 
 add_action('wp_footer', 'chatbot_add_to_footer');
